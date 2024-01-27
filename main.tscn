@@ -1,0 +1,524 @@
+[gd_scene load_steps=6 format=3 uid="uid://cvjm5wtjdjmln"]
+
+[ext_resource type="Script" path="res://Main.cs" id="1_v5xjm"]
+[ext_resource type="PackedScene" uid="uid://daugcyncn6t3k" path="res://register_display.tscn" id="2_ghmuq"]
+[ext_resource type="Script" path="res://GUI.cs" id="2_yduai"]
+[ext_resource type="PackedScene" uid="uid://cs3uy8810c7m8" path="res://instruction_display.tscn" id="3_vijdn"]
+
+[sub_resource type="Theme" id="Theme_xw7jh"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_v5xjm")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="GUI" type="MarginContainer" parent="CanvasLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_xw7jh")
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+script = ExtResource("2_yduai")
+
+[node name="SpimulatorLabel" type="RichTextLabel" parent="CanvasLayer/GUI"]
+custom_minimum_size = Vector2(2.08165e-12, 50)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+bbcode_enabled = true
+text = "[b][font_size=42]Spimulator[/font_size][/b]"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+
+[node name="CenterContainer" type="CenterContainer" parent="CanvasLayer/GUI"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/GUI/CenterContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="PanelContainer" type="PanelContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="Input" type="VBoxContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="InputPanel" type="PanelContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="InputLabel" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputPanel/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_font_sizes/font_size = 24
+text = "Input:"
+
+[node name="FormatChoiceBox" type="HBoxContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 2
+alignment = 2
+
+[node name="MIPSChoiceButton" type="Button" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputPanel/MarginContainer/FormatChoiceBox"]
+layout_mode = 2
+size_flags_horizontal = 8
+toggle_mode = true
+button_pressed = true
+text = "asm"
+
+[node name="HexChoiceButton" type="Button" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputPanel/MarginContainer/FormatChoiceBox"]
+layout_mode = 2
+size_flags_horizontal = 8
+toggle_mode = true
+text = "hex"
+
+[node name="BinaryChoiceButton" type="Button" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputPanel/MarginContainer/FormatChoiceBox"]
+layout_mode = 2
+toggle_mode = true
+text = "bin"
+
+[node name="InputEditor" type="TextEdit" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input"]
+custom_minimum_size = Vector2(300, 400)
+layout_mode = 2
+text = ".text
+main:
+	add $t0, $t1, $t2"
+caret_blink = true
+
+[node name="PlayerButtons" type="PanelContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 8
+alignment = 2
+
+[node name="RunButton" type="Button" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons/HBoxContainer"]
+layout_mode = 2
+text = "Run"
+
+[node name="StepButton" type="Button" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons/HBoxContainer"]
+layout_mode = 2
+text = "Step"
+
+[node name="CompileButton" type="Button" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons"]
+layout_mode = 2
+text = "Compile"
+
+[node name="CodeButton" type="Button" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Return"
+
+[node name="Registers" type="PanelContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer"]
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="PanelContainer" type="PanelContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="Label" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/PanelContainer/MarginContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_font_sizes/font_size = 24
+text = "Registers:"
+
+[node name="OptionButton" type="OptionButton" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/PanelContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 8
+flat = true
+item_count = 3
+selected = 0
+popup/item_0/text = "Hex"
+popup/item_0/id = 0
+popup/item_1/text = "Bin"
+popup/item_1/id = 1
+popup/item_2/text = "Dec"
+popup/item_2/id = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 4
+
+[node name="PanelContainer" type="PanelContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="RegisterContainer" type="GridContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+columns = 2
+
+[node name="Label2" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer"]
+layout_mode = 2
+text = "$zero"
+horizontal_alignment = 2
+
+[node name="RegisterDisplay" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label3" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer"]
+layout_mode = 2
+text = "$at"
+horizontal_alignment = 2
+
+[node name="RegisterDisplay2" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label4" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer"]
+layout_mode = 2
+text = "$v0"
+horizontal_alignment = 2
+
+[node name="RegisterDisplay3" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label5" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer"]
+layout_mode = 2
+text = "$v1"
+horizontal_alignment = 2
+
+[node name="RegisterDisplay4" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label6" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer"]
+layout_mode = 2
+text = "$a0"
+horizontal_alignment = 2
+
+[node name="RegisterDisplay5" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label7" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer"]
+layout_mode = 2
+text = "$a1"
+horizontal_alignment = 2
+
+[node name="RegisterDisplay6" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label8" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer"]
+layout_mode = 2
+text = "$a2"
+horizontal_alignment = 2
+
+[node name="RegisterDisplay7" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label9" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer"]
+layout_mode = 2
+text = "$a3"
+horizontal_alignment = 2
+
+[node name="RegisterDisplay8" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label10" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer"]
+layout_mode = 2
+text = "$t0"
+horizontal_alignment = 2
+
+[node name="RegisterDisplay9" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label11" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer"]
+layout_mode = 2
+text = "$t1"
+horizontal_alignment = 2
+
+[node name="RegisterDisplay10" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label12" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer"]
+layout_mode = 2
+text = "$t2"
+horizontal_alignment = 2
+
+[node name="RegisterDisplay11" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label13" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer"]
+layout_mode = 2
+text = "$t3"
+horizontal_alignment = 2
+
+[node name="RegisterDisplay12" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label14" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer"]
+layout_mode = 2
+text = "$t4"
+horizontal_alignment = 2
+
+[node name="RegisterDisplay13" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label15" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer"]
+layout_mode = 2
+text = "$t5"
+horizontal_alignment = 2
+
+[node name="RegisterDisplay14" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label16" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer"]
+layout_mode = 2
+text = "$t6"
+horizontal_alignment = 2
+
+[node name="RegisterDisplay15" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label17" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer"]
+layout_mode = 2
+text = "$t7"
+horizontal_alignment = 2
+
+[node name="RegisterDisplay16" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/RegisterContainer" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="VSeparator" type="VSeparator" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="PanelContainer2" type="PanelContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2"]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="RegisterContainer2" type="GridContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 8
+columns = 2
+
+[node name="Label2" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2"]
+layout_mode = 2
+text = "$s0"
+
+[node name="RegisterDisplay" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label3" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2"]
+layout_mode = 2
+text = "$s1"
+
+[node name="RegisterDisplay2" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label4" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2"]
+layout_mode = 2
+text = "$s2"
+
+[node name="RegisterDisplay3" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label5" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2"]
+layout_mode = 2
+text = "$s3"
+
+[node name="RegisterDisplay4" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label6" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2"]
+layout_mode = 2
+text = "$s4"
+
+[node name="RegisterDisplay5" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label7" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2"]
+layout_mode = 2
+text = "$s5"
+
+[node name="RegisterDisplay6" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label8" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2"]
+layout_mode = 2
+text = "$s6"
+
+[node name="RegisterDisplay7" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label9" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2"]
+layout_mode = 2
+text = "$s7"
+
+[node name="RegisterDisplay8" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label10" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2"]
+layout_mode = 2
+text = "$t8"
+
+[node name="RegisterDisplay9" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label11" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2"]
+layout_mode = 2
+text = "$t9"
+
+[node name="RegisterDisplay10" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label12" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2"]
+layout_mode = 2
+text = "$k0"
+
+[node name="RegisterDisplay11" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label13" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2"]
+layout_mode = 2
+text = "$k1"
+
+[node name="RegisterDisplay12" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label14" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2"]
+layout_mode = 2
+text = "$gp"
+
+[node name="RegisterDisplay13" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label15" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2"]
+layout_mode = 2
+text = "$sp"
+
+[node name="RegisterDisplay14" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label16" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2"]
+layout_mode = 2
+text = "$fp"
+
+[node name="RegisterDisplay15" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="Label17" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2"]
+layout_mode = 2
+text = "$ra"
+
+[node name="RegisterDisplay16" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/RegisterContainer2" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="OpOutBox" type="VBoxContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="CurrentInstructionBox" type="PanelContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox"]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="CurrentInstructionContainer" type="GridContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer/CurrentInstructionContainer"]
+layout_mode = 2
+
+[node name="PCLabel" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer/CurrentInstructionContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Current Instruction"
+
+[node name="HexLabel" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer/CurrentInstructionContainer"]
+layout_mode = 2
+text = "Hex"
+horizontal_alignment = 2
+
+[node name="RegisterDisplay" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer/CurrentInstructionContainer" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+
+[node name="MipsLabel" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer/CurrentInstructionContainer"]
+layout_mode = 2
+text = "ASM"
+horizontal_alignment = 2
+
+[node name="RegisterDisplay2" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer/CurrentInstructionContainer" instance=ExtResource("2_ghmuq")]
+layout_mode = 2
+text = "add $t0, $t1, $t2"
+
+[node name="InstructionLabel" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer/CurrentInstructionContainer"]
+layout_mode = 2
+text = "Exec"
+horizontal_alignment = 2
+
+[node name="InstructionDisplay" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer/CurrentInstructionContainer" instance=ExtResource("3_vijdn")]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/VBoxContainer"]
+layout_mode = 2
+text = "Output"
+
+[node name="PanelContainer" type="PanelContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/VBoxContainer"]
+layout_mode = 2
+
+[node name="Output" type="RichTextLabel" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/VBoxContainer/PanelContainer"]
+custom_minimum_size = Vector2(2.08165e-12, 200)
+layout_mode = 2
+
+[connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputPanel/MarginContainer/FormatChoiceBox/MIPSChoiceButton" to="CanvasLayer/GUI" method="OnAsmInputButtonPressed"]
+[connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputPanel/MarginContainer/FormatChoiceBox/HexChoiceButton" to="CanvasLayer/GUI" method="OnHexInputButtonPressed"]
+[connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputPanel/MarginContainer/FormatChoiceBox/BinaryChoiceButton" to="CanvasLayer/GUI" method="OnBinInputButtonPressed"]
+[connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons/CompileButton" to="." method="OnCompileButtonPressed"]
+[connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons/CodeButton" to="CanvasLayer/GUI" method="OnCodeButtonPressed"]
+[connection signal="item_selected" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/OptionButton" to="CanvasLayer/GUI" method="OnRegisterDisplayChosen"]
