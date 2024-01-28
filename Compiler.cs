@@ -50,11 +50,11 @@ public static class Compiler {
                                                  ("sra",    0x00000003,new int[]{11,16,6 }),
                                                  ("syscall",0x0000000C,new int[]{        }),
                                                  ("ori",    0x34000000,new int[]{16,21,0 }),
-                                                 ("slt",    0x0000002A,new int[]{11,21,16}),
                                                  ("addu",   0x00000021,new int[]{11,21,16}),
                                                  ("or",     0x00000025,new int[]{11,21,16}),
                                                  ("nor",    0x00000027,new int[]{11,21,16}),
                                                  ("addiu",  0x24000000,new int[]{16,21,0 }),
+                                                 ("slt",    0x0000002A,new int[]{11,21,16}),
                                                  ("andi",   0x30000000,new int[]{16,21,0 })};
 
     public static uint[] Compile(string input) {
@@ -66,34 +66,42 @@ public static class Compiler {
         //Preprocessing: Turn Pseudoinstructions into their proper instructions
         
         for (int i = 0; i < line_by_line.Count; i++) {
-            if (Regex.IsMatch(line_by_line[i],"^li\\s")) { //looks for "li " at the start of the string
-                //  li $rd 0x12345678
-                //  goes to:
+            try {
+                if (Regex.IsMatch(line_by_line[i],"^li\\s")) { //looks for "li " at the start of the string
+                    //  li $rd 0x12345678
+                    //  goes to:
 
-                //  lui $at {upper half}
-                //  ori {$rd} {lower half}
-                string[] dissected = ProperSplit(line_by_line[i]); //should have 3 parts
+                    //  lui $at {upper half}
+                    //  ori {$rd} {lower half}
+                    string[] dissected = ProperSplit(line_by_line[i]); //should have 3 parts
 
-                int immediate = NumFromText(dissected[2]);
-                uint low  = (uint)(0x0000FFFF & (immediate));
-                uint high = (uint)(0x0000FFFF & (immediate >> 16));
+                    int immediate = NumFromText(dissected[2]);
+                    uint low  = (uint)(0x0000FFFF & (immediate));
+                    uint high = (uint)(0x0000FFFF & (immediate >> 16));
 
-                line_by_line.RemoveAt(i);
-                if (high == 0) {
-                    line_by_line.Insert(i,$"addi {dissected[1]} $0, 0x{low.ToString("X8")}");
+                    line_by_line.RemoveAt(i);
+                    if (high == 0) {
+                        line_by_line.Insert(i,$"addi {dissected[1]} $0, 0x{low.ToString("X8")}");
+                    }
+                    else {
+                        line_by_line.Insert(i,$"ori {dissected[1]} $at, 0x{low.ToString("X8")}");
+                        line_by_line.Insert(i,$"lui $at, 0x{high.ToString("X8")}");
+                        i++;
+                    }
                 }
-                else {
-                    line_by_line.Insert(i,$"ori {dissected[1]} $at, 0x{low.ToString("X8")}");
-                    line_by_line.Insert(i,$"lui $at, 0x{high.ToString("X8")}");
-                }
-                i++;
-            }
-            else if (Regex.IsMatch(line_by_line[i],"^move\\s")) {
-                string[] dissected = ProperSplit(line_by_line[i]); //3 parts move $rd, $rs
+                else if (Regex.IsMatch(line_by_line[i],"^move\\s")) {
+                    string[] dissected = ProperSplit(line_by_line[i]); //3 parts move $rd, $rs
 
-                line_by_line.RemoveAt(i);
-                line_by_line.Insert(i,$"add {dissected[1]} {dissected[2]} $0");
+                    line_by_line.RemoveAt(i);
+                    line_by_line.Insert(i,$"add {dissected[1]} {dissected[2]} $0");
+                }
+
+
             }
+            catch (Exception) {
+                throw new CompileException($"Compile Error on Line {i+1}",i);
+            }
+            
         }
 
         //End Preprocessing
@@ -114,7 +122,7 @@ public static class Compiler {
                     currentstage = CompilerStage.Data;
                 }
                 else {
-                    //throw error
+                    throw new CompileException($"Compile Error on Line {i+1}",i);
                 }
             }
             else if (currentstage == CompilerStage.Text) {
@@ -122,7 +130,12 @@ public static class Compiler {
                     functions.Add((line_by_line[i].Substring(0,line_by_line[i].Length-2),instructions.Count));
                 }
                 else { // instruction
-                    instructions.Add(CompileLine(line_by_line[i]));
+                    try {
+                        instructions.Add(CompileLine(line_by_line[i]));
+                    }
+                    catch (Exception) {
+                        throw new CompileException($"Compile Error on Line {i+1}",i);
+                    }
                 }
             }
             else if (currentstage == CompilerStage.Data) {
@@ -164,11 +177,12 @@ public static class Compiler {
     }
 
     public static int NumFromText(string token) {
-        if (Regex.IsMatch(token,"^0x")) { //if number is hexadecimal
-            return Convert.ToInt32(token,16);
+        int sign = token.StartsWith("-") ? 1 : 0;
+        if (Regex.IsMatch(token,"^0x|^-0x")) { //if number is hexadecimal
+            return (1 - 2 * sign) * Convert.ToInt32(token.Substring(sign),16);
         }
-        else if (Regex.IsMatch(token,"^0b")) { //if number is binary
-            return Convert.ToInt32(token.Substring(2),2);
+        else if (Regex.IsMatch(token,"^0b|^-0b")) { //if number is binary
+            return (1 - 2 * sign) * Convert.ToInt32(token.Substring(2 + sign),2);
         }
         else { //if number is normal
             return Convert.ToInt32(token);
@@ -179,7 +193,7 @@ public static class Compiler {
         if (Regex.IsMatch(name,"^\\$\\d")) { //second character is number
             uint index = 0;
             if (!uint.TryParse(name.Substring(1), out index)) {
-                //throw error
+                throw new CompileException();
             }
             return index;
         }
@@ -188,7 +202,7 @@ public static class Compiler {
                 return i;
             }
         }
-        return 0; // need to throw an error
+        throw new CompileException();
     }
 
     public static Command CommandFromName(string name) {
@@ -197,8 +211,7 @@ public static class Compiler {
                 return commands[i];
             }
         }
-        //throw an error
-        return new Command();
+        throw new CompileException();
     }
 
     public static Command CommandFromBinary(uint binary) {
@@ -207,8 +220,7 @@ public static class Compiler {
                 return commands[i];
             }
         }
-        //throw an error
-        return new Command();
+        throw new CompileException();
     }
 
     public static string[] ProperSplit(string to_split) {
