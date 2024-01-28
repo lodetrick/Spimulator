@@ -1,6 +1,7 @@
 using System;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Linq;
 
 public enum CompilerStage {
     Empty,
@@ -48,24 +49,58 @@ public static class Compiler {
                                                  ("srl",    0x00000002,new int[]{11,16,6 }),
                                                  ("sra",    0x00000003,new int[]{11,16,6 }),
                                                  ("syscall",0x0000000C,new int[]{        }),
+                                                 ("ori",    0x34000000,new int[]{16,21,0 }),
                                                  ("slt",    0x0000002A,new int[]{11,21,16}),
                                                  ("addu",   0x00000021,new int[]{11,21,16}),
                                                  ("or",     0x00000025,new int[]{11,21,16}),
                                                  ("nor",    0x00000027,new int[]{11,21,16}),
                                                  ("addiu",  0x24000000,new int[]{16,21,0 }),
-                                                 ("andi",   0x30000000,new int[]{16,21,0 }),
-                                                 ("ori",    0x34000000,new int[]{16,21,0 })};
+                                                 ("andi",   0x30000000,new int[]{16,21,0 })};
 
     public static uint[] Compile(string input) {
         List<uint> instructions = new List<uint>();
         List<ValueTuple<string,int>> functions = new List<ValueTuple<string,int>>();
 
-        string[] line_by_line = input.Split("\n");
+        List<string> line_by_line = input.Split("\n").Select(inp => inp.Trim()).ToList();
+
+        //Preprocessing: Turn Pseudoinstructions into their proper instructions
+        
+        for (int i = 0; i < line_by_line.Count; i++) {
+            if (Regex.IsMatch(line_by_line[i],"^li\\s")) { //looks for "li " at the start of the string
+                //  li $rd 0x12345678
+                //  goes to:
+
+                //  lui $at {upper half}
+                //  ori {$rd} {lower half}
+                string[] dissected = ProperSplit(line_by_line[i]); //should have 3 parts
+
+                int immediate = NumFromText(dissected[2]);
+                uint low  = (uint)(0x0000FFFF & (immediate));
+                uint high = (uint)(0x0000FFFF & (immediate >> 16));
+
+                line_by_line.RemoveAt(i);
+                if (high == 0) {
+                    line_by_line.Insert(i,$"addi {dissected[1]} $0, 0x{low.ToString("X8")}");
+                }
+                else {
+                    line_by_line.Insert(i,$"ori {dissected[1]} $at, 0x{low.ToString("X8")}");
+                    line_by_line.Insert(i,$"lui $at, 0x{high.ToString("X8")}");
+                }
+                i++;
+            }
+            else if (Regex.IsMatch(line_by_line[i],"^move\\s")) {
+                string[] dissected = ProperSplit(line_by_line[i]); //3 parts move $rd, $rs
+
+                line_by_line.RemoveAt(i);
+                line_by_line.Insert(i,$"add {dissected[1]} {dissected[2]} $0");
+            }
+        }
+
+        //End Preprocessing
         
         CompilerStage currentstage = CompilerStage.Empty;
 
-        for (uint i = 0; i < line_by_line.Length; i++) {
-            line_by_line[i] = line_by_line[i].Trim();
+        for (int i = 0; i < line_by_line.Count; i++) {
             //need to check for the fluff, and sort that out
             //need to remember where functions are in the binary, to aid in jumping to them
             if (line_by_line[i].StartsWith('#')) {
@@ -102,7 +137,7 @@ public static class Compiler {
         uint instruction;
         //split the instruction by spaces
         //examine regex.split
-        string[] tokens = input.Split(" ");
+        string[] tokens = ProperSplit(input);
         //identify what type the input is
         //call a function that builds the uint based on the tokens
 
@@ -115,21 +150,39 @@ public static class Compiler {
                 instruction |= (0x1F & index) << function.argshamt[i];
             }
             else { //immediate
-                //check if immediate vs addressing like 4($t0)
-                uint num;
-                if (!uint.TryParse(tokens[i + 1], out num)) {
-                    num = 0; //throw error
-                }
+                //need to check if immediate vs addressing like 4($t0)
+                int num = NumFromText(tokens[i+1]);
+
                 if (function.argshamt[i] == 0) { //immediate
-                    instruction |= (0x0000FFFF & num);
+                    instruction |= (uint)(0x0000FFFF & num);
                 } else { //shamt
-                    instruction |= (0x0000001F & num) << function.argshamt[i];
+                    instruction |= (uint)(0x0000001F & num) << function.argshamt[i];
                 }
             }
         }
         return instruction;
     }
+
+    public static int NumFromText(string token) {
+        if (Regex.IsMatch(token,"^0x")) { //if number is hexadecimal
+            return Convert.ToInt32(token,16);
+        }
+        else if (Regex.IsMatch(token,"^0b")) { //if number is binary
+            return Convert.ToInt32(token.Substring(2),2);
+        }
+        else { //if number is normal
+            return Convert.ToInt32(token);
+        }
+    }
+
     public static uint RegIndexFromName(string name) {
+        if (Regex.IsMatch(name,"^\\$\\d")) { //second character is number
+            uint index = 0;
+            if (!uint.TryParse(name.Substring(1), out index)) {
+                //throw error
+            }
+            return index;
+        }
         for (uint i = 0; i < 32; i++) {
             if (name.Equals(register_names[i])) {
                 return i;
@@ -156,5 +209,9 @@ public static class Compiler {
         }
         //throw an error
         return new Command();
+    }
+
+    public static string[] ProperSplit(string to_split) {
+        return to_split.Split(" ").Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
     }
 }
