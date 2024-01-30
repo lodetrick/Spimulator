@@ -142,8 +142,20 @@ public partial class Main : Node2D //this is the spimulator
 	}
 
 	public void OnCompileButtonPressed() {
-		string assembly = (GetNode("CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputEditor") as TextEdit).Text;
-		InstructionSet = Compiler.Compile(assembly);
+		string assembly = gui.TextInput.Text;
+		gui.ClearOutput();
+		try {
+			InstructionSet = Compiler.Compile(assembly);
+		}
+		catch (CompileException e) {
+			//highlight line i, print error code e to output
+			gui.HighlightLine(e.Line());
+			gui.AddToOutput($"Error: {e.InnerException.Message}\n");
+			return;
+		}
+		
+		//swap view to instruction set
+		gui.SwapToInstructionSet(InstructionSet);
 
 		for (int i = 0; i < InstructionSet.Length; i++) {
 			GD.Print($"{InstructionSet[i].ToString("X8")} - {InstructionSet[i].ToString("B32")}");

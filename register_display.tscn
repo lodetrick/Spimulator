@@ -5,6 +5,7 @@
 [node name="RegisterDisplay" type="PanelContainer"]
 offset_right = 40.0
 offset_bottom = 40.0
+size_flags_horizontal = 4
 script = ExtResource("1_jxawi")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]

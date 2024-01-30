@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://cvjm5wtjdjmln"]
+[gd_scene load_steps=7 format=3 uid="uid://cvjm5wtjdjmln"]
 
 [ext_resource type="Script" path="res://Main.cs" id="1_v5xjm"]
 [ext_resource type="PackedScene" uid="uid://daugcyncn6t3k" path="res://register_display.tscn" id="2_ghmuq"]
 [ext_resource type="Script" path="res://GUI.cs" id="2_yduai"]
 [ext_resource type="PackedScene" uid="uid://cs3uy8810c7m8" path="res://instruction_display.tscn" id="3_vijdn"]
+[ext_resource type="PackedScene" uid="uid://dw4nanbhgcurb" path="res://register_group.tscn" id="3_wqdir"]
 
 [sub_resource type="Theme" id="Theme_xw7jh"]
 
@@ -94,6 +95,10 @@ text = "hex"
 layout_mode = 2
 toggle_mode = true
 text = "bin"
+
+[node name="InstructionSet" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input" instance=ExtResource("3_wqdir")]
+visible = false
+layout_mode = 2
 
 [node name="InputEditor" type="TextEdit" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input"]
 custom_minimum_size = Vector2(300, 400)
@@ -467,6 +472,7 @@ theme_override_constants/margin_bottom = 4
 
 [node name="CurrentInstructionContainer" type="GridContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer"]
 layout_mode = 2
+size_flags_horizontal = 4
 columns = 2
 
 [node name="Label" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer/CurrentInstructionContainer"]
@@ -513,12 +519,13 @@ text = "Output"
 layout_mode = 2
 
 [node name="Output" type="RichTextLabel" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/VBoxContainer/PanelContainer"]
-custom_minimum_size = Vector2(2.08165e-12, 200)
+custom_minimum_size = Vector2(250, 300)
 layout_mode = 2
 
 [connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputPanel/MarginContainer/FormatChoiceBox/MIPSChoiceButton" to="CanvasLayer/GUI" method="OnAsmInputButtonPressed"]
 [connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputPanel/MarginContainer/FormatChoiceBox/HexChoiceButton" to="CanvasLayer/GUI" method="OnHexInputButtonPressed"]
 [connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputPanel/MarginContainer/FormatChoiceBox/BinaryChoiceButton" to="CanvasLayer/GUI" method="OnBinInputButtonPressed"]
+[connection signal="lines_edited_from" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputEditor" to="CanvasLayer/GUI" method="OnInputEditted"]
 [connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons/CompileButton" to="." method="OnCompileButtonPressed"]
 [connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons/CodeButton" to="CanvasLayer/GUI" method="OnCodeButtonPressed"]
 [connection signal="item_selected" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/OptionButton" to="CanvasLayer/GUI" method="OnRegisterDisplayChosen"]

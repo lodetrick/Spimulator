@@ -98,8 +98,8 @@ public static class Compiler {
 
 
             }
-            catch (Exception) {
-                throw new CompileException($"Compile Error on Line {i+1}",i);
+            catch (Exception e) {
+                throw new CompileException(i,e);
             }
             
         }
@@ -122,7 +122,7 @@ public static class Compiler {
                     currentstage = CompilerStage.Data;
                 }
                 else {
-                    throw new CompileException($"Compile Error on Line {i+1}",i);
+                    throw new CompileException(i,new CompileException($"Unidentified Header: {line_by_line[i]}"));
                 }
             }
             else if (currentstage == CompilerStage.Text) {
@@ -133,8 +133,8 @@ public static class Compiler {
                     try {
                         instructions.Add(CompileLine(line_by_line[i]));
                     }
-                    catch (Exception) {
-                        throw new CompileException($"Compile Error on Line {i+1}",i);
+                    catch (Exception e) {
+                        throw new CompileException(i,e);
                     }
                 }
             }
@@ -164,7 +164,14 @@ public static class Compiler {
             }
             else { //immediate
                 //need to check if immediate vs addressing like 4($t0)
-                int num = NumFromText(tokens[i+1]);
+                int num = 0;
+                try {
+                    num = NumFromText(tokens[i+1]);
+                }
+                catch (Exception) {
+                    throw new CompileException($"Could not Identify Number From {tokens[i+1]}");
+                }
+                
 
                 if (function.argshamt[i] == 0) { //immediate
                     instruction |= (uint)(0x0000FFFF & num);
@@ -193,7 +200,10 @@ public static class Compiler {
         if (Regex.IsMatch(name,"^\\$\\d")) { //second character is number
             uint index = 0;
             if (!uint.TryParse(name.Substring(1), out index)) {
-                throw new CompileException();
+                throw new CompileException($"Unidentified Register Format: {name}");
+            }
+            if (index > 31 || index < 0) {
+                throw new CompileException($"Register {index} Out of Range");
             }
             return index;
         }
@@ -202,7 +212,7 @@ public static class Compiler {
                 return i;
             }
         }
-        throw new CompileException();
+        throw new CompileException($"Register {name} Doesn't Exist");
     }
 
     public static Command CommandFromName(string name) {
@@ -211,7 +221,7 @@ public static class Compiler {
                 return commands[i];
             }
         }
-        throw new CompileException();
+        throw new CompileException($"Unidentified Command: {name}");
     }
 
     public static Command CommandFromBinary(uint binary) {
