@@ -20,7 +20,8 @@ public partial class GUI : MarginContainer
 	private PanelContainer PlayerButtons = null;
 	private HBoxContainer InputChoiceButtons = null;
 	private RichTextLabel TextOutput = null;
-	public TextEdit TextInput = null;
+	public LineEdit TextInput = null;
+	public TextEdit CompileInput = null;
 	private register_group InstructionSetDisplay = null;
 
 	private Color error_color = new Color("#eb3e31");
@@ -34,8 +35,9 @@ public partial class GUI : MarginContainer
 		PlayerButtons         = (PanelContainer)GetNode("CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons");
 		InputChoiceButtons    = (HBoxContainer) GetNode("CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputPanel/MarginContainer/FormatChoiceBox");
 		CurrentInstruction    = (GridContainer) GetNode("CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer/CurrentInstructionContainer");
-		TextOutput            = (RichTextLabel) GetNode("CenterContainer/HBoxContainer/OpOutBox/VBoxContainer/PanelContainer/Output");
-		TextInput             = (TextEdit)      GetNode("CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputEditor");
+		TextOutput            = (RichTextLabel) GetNode("CenterContainer/HBoxContainer/OpOutBox/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer/Output");
+		TextInput             = (LineEdit)      GetNode("CenterContainer/HBoxContainer/OpOutBox/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/LineEdit");
+		CompileInput          = (TextEdit)      GetNode("CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputEditor");
 		InstructionSetDisplay = (register_group)GetNode("CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InstructionSet");
 	}
 
@@ -70,15 +72,15 @@ public partial class GUI : MarginContainer
 	public void DisplayRegisters(uint[] registers)
 	{
 		for (int i = 0; i < 16; i++) {
-			(LeftRegisters. GetChild(2 * i - 1) as register_display).SetData(registers[i   ]);
-			(RightRegisters.GetChild(2 * i - 1) as register_display).SetData(registers[i+16]);
+			(LeftRegisters. GetChild(2 * i + 1) as register_display).SetData(registers[i   ],register_display);
+			(RightRegisters.GetChild(2 * i + 1) as register_display).SetData(registers[i+16],register_display);
 		}
 	}
 
 	public void UpdateStepDisplay(ValueTuple<uint,string,string> stepinfo) {
-		(CurrentInstruction.GetChild(3) as Label).Text = "0x" + stepinfo.Item1.ToString("X8");
-		(CurrentInstruction.GetChild(5) as Label).Text = stepinfo.Item2;
-		(CurrentInstruction.GetChild(7) as Label).Text = stepinfo.Item3;
+		(CurrentInstruction.GetChild(3) as register_display).SetText("0x" + stepinfo.Item1.ToString("X8"));
+		(CurrentInstruction.GetChild(5) as register_display).SetText(stepinfo.Item2);
+		(CurrentInstruction.GetChild(7) as register_display).SetText(stepinfo.Item3);
 	}
 
 	public void OnRegisterDisplayChosen(uint index) {
@@ -111,11 +113,11 @@ public partial class GUI : MarginContainer
 	}
 
 	public void HighlightLine(int line) {
-		TextInput.SetLineBackgroundColor(line, error_color);
+		CompileInput.SetLineBackgroundColor(line, error_color);
 	}
 
 	public void ClearHighlight(int line) {
-		TextInput.SetLineBackgroundColor(line, new Color(error_color,0f));
+		CompileInput.SetLineBackgroundColor(line, new Color(error_color,0f));
 	}
 
 	public void OnInputEditted(int from, int to) {
@@ -124,14 +126,14 @@ public partial class GUI : MarginContainer
 		}
 	}
 
-	public void SwapToInstructionSet(uint[] instructions) {
+	public void SwapToInstructionSet(byte[] instructions) {
 		InstructionSetDisplay.Show();
-		TextInput.Hide();
+		CompileInput.Hide();
 		InstructionSetDisplay.SetGroup(instructions);
 	}
 	public void SwapToInput() {
 		InstructionSetDisplay.Hide();
-		TextInput.Show();
+		CompileInput.Show();
 	}
 
 	public void OnAsmInputButtonPressed() {

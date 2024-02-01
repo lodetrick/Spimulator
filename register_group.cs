@@ -14,12 +14,16 @@ public partial class register_group : PanelContainer
 		RegisterParent = (VBoxContainer)GetNode("MarginContainer/ScrollContainer/VBoxContainer");
 	}
 
-	public void SetGroup(uint[] group) {
-		RegisterGroup = group;
-		Resize(group.Length);
+	public void SetGroup(byte[] group) {
+		//  https://stackoverflow.com/a/7288935
+		uint[] _group = new uint[group.Length / 4];
+		Buffer.BlockCopy(group, 0, _group, 0, group.Length);
+		//
+		RegisterGroup = _group;
+		Resize(_group.Length);
 		//loop through group, set register texts
-		for (int i = 0; i < group.Length; i++) {
-			(RegisterParent.GetChild(i) as register_display).SetData(group[i],DataRepresentation.Hex);
+		for (int i = 0; i < _group.Length; i++) {
+			(RegisterParent.GetChild(i) as register_display).SetData(_group[i],DataRepresentation.Hex);
 		}
 	}
 

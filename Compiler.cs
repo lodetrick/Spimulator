@@ -57,11 +57,11 @@ public static class Compiler {
                                                  ("slt",    0x0000002A,new int[]{11,21,16}),
                                                  ("andi",   0x30000000,new int[]{16,21,0 })};
 
-    public static uint[] Compile(string input) {
-        List<uint> instructions = new List<uint>();
+    public static byte[] Compile(string input) {
+        List<byte> instructions = new List<byte>();
         List<ValueTuple<string,int>> functions = new List<ValueTuple<string,int>>();
 
-        List<string> line_by_line = input.Split("\n").Select(inp => inp.Trim()).ToList();
+        List<string> line_by_line = input.Split("\n").Where(x => !string.IsNullOrWhiteSpace(x)).Select(inp => inp.Trim()).ToList();
 
         //Preprocessing: Turn Pseudoinstructions into their proper instructions
         
@@ -126,12 +126,12 @@ public static class Compiler {
                 }
             }
             else if (currentstage == CompilerStage.Text) {
-                if (line_by_line[i].EndsWith(':')) { // function
+                if (line_by_line[i].EndsWith(':')) { // label
                     functions.Add((line_by_line[i].Substring(0,line_by_line[i].Length-2),instructions.Count));
                 }
                 else { // instruction
                     try {
-                        instructions.Add(CompileLine(line_by_line[i]));
+                        instructions.AddRange(BitConverter.GetBytes(CompileLine(line_by_line[i])));
                     }
                     catch (Exception e) {
                         throw new CompileException(i,e);

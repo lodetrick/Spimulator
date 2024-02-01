@@ -3,8 +3,8 @@
 [ext_resource type="Script" path="res://register_display.cs" id="1_jxawi"]
 
 [node name="RegisterDisplay" type="PanelContainer"]
-offset_right = 40.0
-offset_bottom = 40.0
+offset_right = 95.0
+offset_bottom = 23.0
 size_flags_horizontal = 4
 script = ExtResource("1_jxawi")
 

@@ -1,9 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://cvjm5wtjdjmln"]
+[gd_scene load_steps=6 format=3 uid="uid://cvjm5wtjdjmln"]
 
 [ext_resource type="Script" path="res://Main.cs" id="1_v5xjm"]
 [ext_resource type="PackedScene" uid="uid://daugcyncn6t3k" path="res://register_display.tscn" id="2_ghmuq"]
 [ext_resource type="Script" path="res://GUI.cs" id="2_yduai"]
-[ext_resource type="PackedScene" uid="uid://cs3uy8810c7m8" path="res://instruction_display.tscn" id="3_vijdn"]
 [ext_resource type="PackedScene" uid="uid://dw4nanbhgcurb" path="res://register_group.tscn" id="3_wqdir"]
 
 [sub_resource type="Theme" id="Theme_xw7jh"]
@@ -105,7 +104,16 @@ custom_minimum_size = Vector2(300, 400)
 layout_mode = 2
 text = ".text
 main:
-	add $t0, $t1, $t2"
+	addi $t0, $zero, -1
+	li $v0, 5
+	syscall
+	add $a0, $t0, $v0
+	
+	li $v0, 1
+	syscall
+
+	li $v0, 10
+	syscall"
 caret_blink = true
 
 [node name="PlayerButtons" type="PanelContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input"]
@@ -117,13 +125,13 @@ layout_mode = 2
 size_flags_horizontal = 8
 alignment = 2
 
-[node name="RunButton" type="Button" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons/HBoxContainer"]
-layout_mode = 2
-text = "Run"
-
 [node name="StepButton" type="Button" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons/HBoxContainer"]
 layout_mode = 2
 text = "Step"
+
+[node name="RunButton" type="Button" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons/HBoxContainer"]
+layout_mode = 2
+text = "Run"
 
 [node name="CompileButton" type="Button" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons"]
 layout_mode = 2
@@ -160,6 +168,7 @@ theme_override_constants/margin_right = 4
 theme_override_constants/margin_bottom = 4
 
 [node name="Label" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/PanelContainer/MarginContainer"]
+custom_minimum_size = Vector2(290, 2.08165e-12)
 layout_mode = 2
 size_flags_vertical = 0
 theme_override_font_sizes/font_size = 24
@@ -490,6 +499,7 @@ horizontal_alignment = 2
 
 [node name="RegisterDisplay" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer/CurrentInstructionContainer" instance=ExtResource("2_ghmuq")]
 layout_mode = 2
+text = "-----------"
 
 [node name="MipsLabel" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer/CurrentInstructionContainer"]
 layout_mode = 2
@@ -498,15 +508,16 @@ horizontal_alignment = 2
 
 [node name="RegisterDisplay2" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer/CurrentInstructionContainer" instance=ExtResource("2_ghmuq")]
 layout_mode = 2
-text = "add $t0, $t1, $t2"
+text = "-----------"
 
 [node name="InstructionLabel" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer/CurrentInstructionContainer"]
 layout_mode = 2
 text = "Exec"
 horizontal_alignment = 2
 
-[node name="InstructionDisplay" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer/CurrentInstructionContainer" instance=ExtResource("3_vijdn")]
+[node name="RegisterDisplay3" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer/CurrentInstructionContainer" instance=ExtResource("2_ghmuq")]
 layout_mode = 2
+text = "-----------"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox"]
 layout_mode = 2
@@ -518,14 +529,38 @@ text = "Output"
 [node name="PanelContainer" type="PanelContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/VBoxContainer"]
 layout_mode = 2
 
-[node name="Output" type="RichTextLabel" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/VBoxContainer/PanelContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/VBoxContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 4
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/VBoxContainer/PanelContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="Output" type="RichTextLabel" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(250, 300)
 layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "std::in: "
+
+[node name="LineEdit" type="LineEdit" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(200, 2.08165e-12)
+layout_mode = 2
+caret_blink = true
 
 [connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputPanel/MarginContainer/FormatChoiceBox/MIPSChoiceButton" to="CanvasLayer/GUI" method="OnAsmInputButtonPressed"]
 [connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputPanel/MarginContainer/FormatChoiceBox/HexChoiceButton" to="CanvasLayer/GUI" method="OnHexInputButtonPressed"]
 [connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputPanel/MarginContainer/FormatChoiceBox/BinaryChoiceButton" to="CanvasLayer/GUI" method="OnBinInputButtonPressed"]
 [connection signal="lines_edited_from" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputEditor" to="CanvasLayer/GUI" method="OnInputEditted"]
+[connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons/HBoxContainer/StepButton" to="." method="OnStepButtonPressed"]
+[connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons/HBoxContainer/RunButton" to="." method="OnRunButtonPressed"]
 [connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons/CompileButton" to="." method="OnCompileButtonPressed"]
 [connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons/CodeButton" to="CanvasLayer/GUI" method="OnCodeButtonPressed"]
 [connection signal="item_selected" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/OptionButton" to="CanvasLayer/GUI" method="OnRegisterDisplayChosen"]
