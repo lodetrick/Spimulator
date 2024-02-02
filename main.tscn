@@ -102,18 +102,85 @@ layout_mode = 2
 [node name="InputEditor" type="TextEdit" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input"]
 custom_minimum_size = Vector2(300, 400)
 layout_mode = 2
-text = ".text
+text = "# factorial.asm program
+# CS 64, Z.Matni, zmatni@ucsb.edu
+#
+# Assembly (NON-RECURSIVE) version of:
+#   unsigned int n, fn=1;
+#   cout << \"Enter a number:\\n\";
+#   cin >> n;
+#   for (int x = 2; x <= n; x++) {
+#       fn = fn * x;
+#   }
+#   cout << \"Factorial of \" << x << \" is:\\n\" << fn << \"\\n\";
+#
+.data
+
+	# TODO: Write your initializations here
+	numin: .asciiz \"Enter a number:\\n\"
+	resultstr: .asciiz \"Factorial of \"
+	isstr: .asciiz \" is: \"
+	newl: .asciiz \"\\n\"
+
+#Text Area (i.e. instructions)
+.text
 main:
-	addi $t0, $zero, -1
+
+	# TODO: Write your code here
+
+	#print string
+	li $v0, 4
+	la $a0, numin
+	syscall
+
+	#get numbers
 	li $v0, 5
 	syscall
-	add $a0, $t0, $v0
-	
+	move $t1, $v0
+
+	li $t2, 1
+	li $t0, 2
+
+loop:
+	# x <= n
+	slt $t7, $t1, $t0
+	bne $t7, $zero, exit
+
+	#multiply x and fn
+	mult $t2, $t0
+	mflo $t2
+
+	#x++
+	addi $t0, $t0, 1
+	j loop
+
+exit:
+	# TODO: Write code to properly exit a SPIM simulation
+
+	#print output and exit
+	li $v0, 4
+	la $a0, resultstr
+	syscall
+
 	li $v0, 1
+	move $a0, $t1
+	syscall
+
+	li $v0, 4
+	la $a0, isstr
+	syscall
+
+	li $v0, 1
+	move $a0, $t2
+	syscall
+
+	li $v0, 4
+	la $a0, newl
 	syscall
 
 	li $v0, 10
-	syscall"
+	syscall
+"
 caret_blink = true
 
 [node name="PlayerButtons" type="PanelContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input"]
@@ -542,6 +609,9 @@ layout_mode = 2
 [node name="Output" type="RichTextLabel" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(250, 300)
 layout_mode = 2
+focus_mode = 2
+bbcode_enabled = true
+selection_enabled = true
 
 [node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2

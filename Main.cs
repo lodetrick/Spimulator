@@ -1,26 +1,29 @@
 using Godot;
 using System;
+using System.Text;
 
 public partial class Main : Node2D //this is the spimulator
 {
 	private GUI gui = null;
-	private int ProgramCounter = -4;
+	private uint ProgramCounter = 0u;
 	private bool ProgramActive = false;
 	private bool AskingForInput = false;
+	private uint High, Low;
 	private byte[] InstructionSet;
 	private uint[] Registers;
-	private byte[] Memory;
+	public static byte[] Memory; //use bitconverter when reading to and writing to memory
 	public override void _Ready()
 	{
 		gui = (GUI)GetNode("CanvasLayer/GUI");
 
+		Memory    = new byte[1024]; // 1 KB of Memory
 		Registers = new uint[32];
 		Array.Fill<uint>(Registers,0);
 		gui.DisplayRegisters(Registers);
 	}
 
 	private void ResetSPIM() {
-		ProgramCounter = -4;
+		ProgramCounter = 0u;
 		ProgramActive = true;
 		AskingForInput = false;
 		Array.Fill<uint>(Registers,0);
@@ -30,10 +33,8 @@ public partial class Main : Node2D //this is the spimulator
 
 	public ValueTuple<uint,string,string> Step()
 	{
-		//Increment Program Counter
-		ProgramCounter += 4;
 		//Find register pouinted to by program counter
-		uint instr = BitConverter.ToUInt32(InstructionSet,ProgramCounter);
+		uint instr = BitConverter.ToUInt32(InstructionSet,(int)ProgramCounter);
 		//Identify the Type (R, I, J) by the OpCode
 		uint Opcode = GetOpcode(instr);
 		uint RS = 0,RT = 0,RD = 0,Immediate = 0,Address = 0;
@@ -63,6 +64,8 @@ public partial class Main : Node2D //this is the spimulator
 
 			function = Compiler.CommandFromBinary(instr & 0xFC000000);
 		}
+		
+		ProgramCounter += 4;
 
 		switch (function.binary) {
 			case 0x20000000:  // addi
@@ -85,7 +88,23 @@ public partial class Main : Node2D //this is the spimulator
 				Syscall(instr);
 				break;
 			case 0x0000002A:  // slt
-				break;
+				return SLT(instr,RD,RS,RT);
+			case 0x10000000: // beq
+				return Beq(instr,RT,RS,Immediate);
+			case 0x14000000: // bne
+				return Bne(instr,RT,RS,Immediate);
+			case 0x08000000: // j
+				return J(instr, Address);
+			case 0x0C000000: // jal
+				return Jal(instr, Address);
+			case 0x00000008: // jr
+				return Jr(instr, RS);
+			case 0x00000018: // mult
+				return Mult(instr, RS, RT);
+			case 0x00000012: // mflo
+				return Mflo(instr, RD);
+			case 0x00000010: // mfhi
+				return Mfhi(instr, RD);
 			case 0x00000021: // addu
 				break;
 			case 0x00000025: // or
@@ -94,6 +113,10 @@ public partial class Main : Node2D //this is the spimulator
 				break;
 			case 0x24000000: // addiu
 				return Addiu(instr,RT,RS,Immediate);
+			case 0x8C000000: // lw
+				return Lw(instr,RT,RS,Immediate);
+			case 0xAC000000: // sw
+				return Sw(instr,RT,RS,Immediate);
 			case 0x30000000: // andi
 				break;
 			case 0x34000000: // ori
@@ -114,6 +137,66 @@ public partial class Main : Node2D //this is the spimulator
 		return (instr,$"addiu {Compiler.register_names[rt]}, {Compiler.register_names[rs]}, {(int)immediate}",$"{Registers[rs]} + {immediate} = {Registers[rt]}");
 	}
 
+	public ValueTuple<uint,string,string> Lw(uint instr, uint rt, uint rs, uint immediate) {
+		Registers[rt] = BitConverter.ToUInt32(Memory,(int)(Registers[rs] + (int)immediate));
+		return (instr,$"lw {Compiler.register_names[rt]}, {(int)immediate}({Compiler.register_names[rs]})",$"{Registers[rt]} = M[{Registers[rs]} + {(int)immediate}]");
+	}
+
+	public ValueTuple<uint,string,string> Sw(uint instr, uint rt, uint rs, uint immediate) {
+		byte[] bytes = BitConverter.GetBytes(Registers[rt]); //4 bytes
+		for (int i = 0; i < 4; i++) {
+			Memory[Registers[rs] + immediate + i] = bytes[i];
+		}
+		return (instr,$"sw {Compiler.register_names[rt]}, {(int)immediate}({Compiler.register_names[rs]})",$"M[{Registers[rs]} + {(int)immediate}] = {Registers[rt]}");
+	}
+
+	public ValueTuple<uint,string,string> Beq(uint instr, uint rt, uint rs, uint immediate) {
+		if (Registers[rt] == Registers[rs]) {
+			ProgramCounter += immediate;
+		}
+		return (instr,$"beq {Compiler.register_names[rt]}, {Compiler.register_names[rs]}, {(int)immediate}",$"if ({Registers[rt]} == {Registers[rs]}) PC += 4 + {(int)immediate}");
+	}
+
+	public ValueTuple<uint,string,string> Bne(uint instr, uint rt, uint rs, uint immediate) {
+		if (Registers[rt] != Registers[rs]) {
+			ProgramCounter += immediate;
+		}
+		return (instr,$"bne {Compiler.register_names[rt]}, {Compiler.register_names[rs]}, {(int)immediate}",$"if ({Registers[rt]} != {Registers[rs]}) PC += 4 + {(int)immediate}");
+	}
+
+	public ValueTuple<uint,string,string> Jr(uint instr, uint rs) {
+		ProgramCounter = Registers[rs];
+		return (instr,$"jr {Compiler.register_names[rs]}",$"PC = {Registers[rs]}");
+	}
+
+	public ValueTuple<uint,string,string> J(uint instr, uint address) {
+		ProgramCounter = address;
+		return (instr,$"j {address}",$"PC = {address}");
+	}
+
+	public ValueTuple<uint,string,string> Jal(uint instr, uint address) {
+		Registers[31] = ProgramCounter;
+		ProgramCounter = address;
+		return (instr,$"jal {address}",$"$ra = PC, PC = {address}");
+	}
+
+	public ValueTuple<uint,string,string> Mult(uint instr, uint rt, uint rs) {
+		Int64 total = ((Int64)Registers[rt]) * ((Int64)Registers[rs]);
+		High = (UInt32)(total >> 32);
+		Low  = (UInt32)(total & 0x00000000_FFFFFFFF);
+		return (instr,$"mult {Compiler.register_names[rs]}, {Compiler.register_names[rt]}",$"{{High, Low}} = {Registers[rt]} * {Registers[rs]}");
+	}
+
+	public ValueTuple<uint,string,string> Mflo(uint instr, uint rd) {
+		Registers[rd] = Low;
+		return (instr,$"mflo {Compiler.register_names[rd]}",$"{Registers[rd]} = Low");
+	}
+
+	public ValueTuple<uint,string,string> Mfhi(uint instr, uint rd) {
+		Registers[rd] = High;
+		return (instr,$"mfhi {Compiler.register_names[rd]}",$"{Registers[rd]} = High");
+	}
+
 	public ValueTuple<uint,string,string> Add(uint instr, uint rd, uint rs, uint rt) {
 		// returns the operation in string form to display on the GUI
 		// ( normally, it would just return void, but this is good information to have )
@@ -127,6 +210,11 @@ public partial class Main : Node2D //this is the spimulator
 	public ValueTuple<uint,string,string> Sub(uint instr, uint rd, uint rs, uint rt) {
 		Registers[rd] = Registers[rs] - Registers[rt];
 		return (instr,$"sub {Compiler.register_names[rd]}, {Compiler.register_names[rs]}, {Compiler.register_names[rt]}",$"{Registers[rs]} - {Registers[rt]} = {Registers[rd]}");
+	}
+
+	public ValueTuple<uint,string,string> SLT(uint instr, uint rd, uint rs, uint rt) {
+		Registers[rd] = (int)Registers[rs] < (int)Registers[rt] ? 1u : 0u;
+		return (instr,$"slt {Compiler.register_names[rd]}, {Compiler.register_names[rs]}, {Compiler.register_names[rt]}",$"{Registers[rd]} = {(int)Registers[rs]} < {(int)Registers[rt]} ? 1 : 0");
 	}
 
 	public ValueTuple<uint,string,string> And(uint instr, uint rd, uint rs, uint rt) {
@@ -169,7 +257,11 @@ public partial class Main : Node2D //this is the spimulator
 				//go to memory pointed to by $a0, add that char
 				// while the char != 0, add the char
 				// finally, print the string to output
-				
+				uint mem = Registers[4];
+				while (Memory[mem] != 0) {
+					gui.AddToOutput(((char)Memory[mem]).ToString());
+					mem += 1;
+				}
 				break;
 			case 5: // user int input
 				AskingForInput = true;
@@ -180,9 +272,26 @@ public partial class Main : Node2D //this is the spimulator
 		}
 	}
 
-	public void OnStepButtonPressed() {
+	public async void OnStepButtonPressed() {
+		if (AskingForInput) return;
+
 		if (ProgramActive) {
 			gui.UpdateStepDisplay(Step());
+
+			if (AskingForInput) {
+				GD.Print("Waiting");
+				await ToSignal(gui.TextInput, LineEdit.SignalName.TextSubmitted);
+				AskingForInput = false;
+
+				switch (Registers[2]) {
+					case 5:
+						Registers[2] = (uint)Compiler.NumFromText(gui.TextInput.Text);
+						break;
+				}
+
+				gui.AddToOutput(gui.TextInput.Text + "\n");
+				gui.TextInput.Clear();
+			}
 			gui.DisplayRegisters(Registers);
 		}	
 	}
@@ -204,7 +313,8 @@ public partial class Main : Node2D //this is the spimulator
 						Registers[2] = (uint)Compiler.NumFromText(gui.TextInput.Text);
 						break;
 				}
-
+				
+				gui.AddToOutput(gui.TextInput.Text + "\n");
 				gui.TextInput.Clear();
 			}
 		}
@@ -215,9 +325,14 @@ public partial class Main : Node2D //this is the spimulator
 	public void OnCompileButtonPressed() {
 		string assembly = gui.CompileInput.Text;
 		ResetSPIM();
+		
+		InstructionSet = Compiler.Compile(assembly);
 
+		for (int i = 0; i < Memory.Length; i++) {
+			GD.Print(Memory[i]);
+		}
 		try {
-			InstructionSet = Compiler.Compile(assembly);
+			//InstructionSet = Compiler.Compile(assembly);
 		}
 		catch (CompileException e) {
 			//highlight line i, print error code e to output
@@ -229,8 +344,8 @@ public partial class Main : Node2D //this is the spimulator
 		//swap view to instruction set
 		gui.SwapToInstructionSet(InstructionSet);
 
-		for (int i = 0; i < InstructionSet.Length; i++) {
-			GD.Print($"{InstructionSet[i].ToString("X8")} - {InstructionSet[i].ToString("B32")}");
+		for (int i = 0; i < InstructionSet.Length; i+=4) {
+			GD.Print($"{BitConverter.ToUInt32(InstructionSet,i).ToString("X8")} - {BitConverter.ToUInt32(InstructionSet,i).ToString("B32")}");
 		}
 		GD.Print("------INSTRUCTION-OVER------\n");
 
