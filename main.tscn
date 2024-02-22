@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://Main.cs" id="1_v5xjm"]
 [ext_resource type="PackedScene" uid="uid://daugcyncn6t3k" path="res://register_display.tscn" id="2_ghmuq"]
 [ext_resource type="Script" path="res://GUI.cs" id="2_yduai"]
-[ext_resource type="PackedScene" uid="uid://cs3uy8810c7m8" path="res://instruction_display.tscn" id="3_vijdn"]
+[ext_resource type="PackedScene" uid="uid://dw4nanbhgcurb" path="res://register_group.tscn" id="3_wqdir"]
 
 [sub_resource type="Theme" id="Theme_xw7jh"]
 
@@ -95,12 +95,229 @@ layout_mode = 2
 toggle_mode = true
 text = "bin"
 
+[node name="InstructionSet" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input" instance=ExtResource("3_wqdir")]
+visible = false
+layout_mode = 2
+
 [node name="InputEditor" type="TextEdit" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input"]
 custom_minimum_size = Vector2(300, 400)
 layout_mode = 2
-text = ".text
-main:
-	add $t0, $t1, $t2"
+text = "# swap_array.asm program
+# CS 64, Z.Matni, zmatni@ucsb.edu
+#
+# IMPORTANT: READ, BUT DO NOT CHANGE ANY OF THE CODE IN THIS PROGRAM
+#           THAT IS ALREADY THERE! ONLY ADD YOUR NEW CODE WHERE 
+#           IT SAYS TODO SO, i.e. IN THE doSwap: AREA.
+
+.data
+# Data Area.  Note that while this is typically only
+# For global immutable data, for SPIM, this also includes
+# mutable data.        
+
+incorrect:  .asciiz \"---TEST FAILED---\\n\"
+before:     .asciiz \"Before:\\n\"
+after:      .asciiz \"After:\\n\"
+comma:      .asciiz \", \"
+newline:    .asciiz \"\\n\"
+        
+expectedMyArray: .word 17 29 20 27 22 25 24 23 26 21 28 19
+myArray: .word 29 17 27 20 25 22 23 24 21 26 19 28
+
+.text
+# Print everything in the array (without use of a loop)
+# Used as a function/sub-routine
+
+printArray: # Again: DO NOT CHANGE THIS CODE BLOCK!
+        la $t0, myArray
+
+        li $v0, 1
+        lw $a0, 0($t0)
+        syscall
+        li $v0, 4
+        la $a0, comma
+        syscall
+        
+        li $v0, 1
+        lw $a0, 4($t0)
+        syscall
+        li $v0, 4
+        la $a0, comma
+        syscall
+
+        li $v0, 1
+        lw $a0, 8($t0)
+        syscall
+        li $v0, 4
+        la $a0, comma
+        syscall
+
+        li $v0, 1
+        lw $a0, 12($t0)
+        syscall
+        li $v0, 4
+        la $a0, comma
+        syscall
+
+        li $v0, 1
+        lw $a0, 16($t0)
+        syscall
+        li $v0, 4
+        la $a0, comma
+        syscall
+
+        li $v0, 1
+        lw $a0, 20($t0)
+        syscall
+        li $v0, 4
+        la $a0, comma
+        syscall
+
+        li $v0, 1
+        lw $a0, 24($t0)
+        syscall
+        li $v0, 4
+        la $a0, comma
+        syscall
+
+        li $v0, 1
+        lw $a0, 28($t0)
+        syscall
+        li $v0, 4
+        la $a0, comma
+        syscall
+
+        li $v0, 1
+        lw $a0, 32($t0)
+        syscall
+        li $v0, 4
+        la $a0, comma
+        syscall
+		
+	li $v0, 1
+        lw $a0, 36($t0)
+        syscall
+        li $v0, 4
+        la $a0, comma
+        syscall
+
+        li $v0, 1
+        lw $a0, 40($t0)
+        syscall
+        li $v0, 4
+        la $a0, comma
+        syscall
+
+        li $v0, 1
+        lw $a0, 44($t0)
+        syscall
+        li $v0, 4
+        la $a0, newline
+        syscall
+
+        jr $ra
+        
+checkArrays:  # Again: DO NOT CHANGE THIS CODE BLOCK!
+        # $t0: p1
+        # $t1: p2
+        # $t2: limit
+        
+        la $t0, expectedMyArray
+        la $t1, myArray
+        addiu $t2, $t0, 44
+
+checkArrays_loop:  # Again: DO NOT CHANGE THIS CODE BLOCK!
+        slt $t3, $t0, $t2
+        beq $t3, $zero, checkArrays_exit
+
+        lw $t4, 0($t0)
+        lw $t5, 0($t1)
+        bne $t4, $t5, checkArrays_nonequal
+        addiu $t0, $t0, 4
+        addiu $t1, $t1, 4
+        j checkArrays_loop
+        
+checkArrays_nonequal: # Again: DO NOT CHANGE THIS CODE BLOCK!
+        li $v0, 0
+        jr $ra
+        
+checkArrays_exit: # Again: DO NOT CHANGE THIS CODE BLOCK!
+        li $v0, 1
+        jr $ra
+        
+main:   # Again: DO NOT CHANGE THIS CODE BLOCK!
+        # Print array \"before\"
+        la $a0, before
+        li $v0, 4
+        syscall
+
+        jal printArray
+        
+        # Do swap function 
+        jal doSwap
+
+        # Print array \"after\"
+        la $a0, after
+        li $v0, 4
+        syscall
+        
+        jal printArray
+
+        # Perform check on array
+        jal checkArrays
+        beq $v0, $zero, main_failed
+        j main_exit
+        
+main_failed: # Again: DO NOT CHANGE THIS CODE BLOCK!
+        la $a0, incorrect
+        li $v0, 4
+        syscall
+        
+main_exit:      
+	li $v0, 10
+    syscall
+
+        
+# COPYFROMHERE - DO ___NOT___ REMOVE THIS LINE
+
+doSwap:
+        # TODO: translate the following C/C++ code 
+        # into MIPS assembly here.
+        # Use only regs $v0-$v1, $t0-$t7, $a0-$a3.
+        # You may assume nothing about their starting values.
+        #
+        #
+        # unsigned int x = 0; 
+        # unsigned int y = 1; 
+        # while (x < 11) { 
+        #    int temp = myArray[x]; 
+        #    myArray[x] = myArray[y]; 
+        #    myArray[y] = temp; 
+        #    x+=2; 
+        #    y+=2; 
+        # }
+
+        # TODO: fill in the assembly code here:
+        
+        la $t0, myArray
+        addiu $t1, $t0, 96
+
+swap_loop:
+        slt $t2, $t0, $t1
+        beq $t2, $zero, finished
+
+        lw $t2, 0($t0)
+        lw $t3, 4($t0)
+        sw $t2, 4($t0)
+        sw $t3, 0($t0)
+
+        addiu $t0, $t0, 8
+        j swap_loop
+
+
+finished:
+        # do ___NOT___ remove this last line
+        jr $ra
+"
 caret_blink = true
 
 [node name="PlayerButtons" type="PanelContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input"]
@@ -112,13 +329,13 @@ layout_mode = 2
 size_flags_horizontal = 8
 alignment = 2
 
-[node name="RunButton" type="Button" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons/HBoxContainer"]
-layout_mode = 2
-text = "Run"
-
 [node name="StepButton" type="Button" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons/HBoxContainer"]
 layout_mode = 2
 text = "Step"
+
+[node name="RunButton" type="Button" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons/HBoxContainer"]
+layout_mode = 2
+text = "Run"
 
 [node name="CompileButton" type="Button" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons"]
 layout_mode = 2
@@ -155,6 +372,7 @@ theme_override_constants/margin_right = 4
 theme_override_constants/margin_bottom = 4
 
 [node name="Label" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/PanelContainer/MarginContainer"]
+custom_minimum_size = Vector2(290, 2.08165e-12)
 layout_mode = 2
 size_flags_vertical = 0
 theme_override_font_sizes/font_size = 24
@@ -467,6 +685,7 @@ theme_override_constants/margin_bottom = 4
 
 [node name="CurrentInstructionContainer" type="GridContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer"]
 layout_mode = 2
+size_flags_horizontal = 4
 columns = 2
 
 [node name="Label" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer/CurrentInstructionContainer"]
@@ -484,6 +703,7 @@ horizontal_alignment = 2
 
 [node name="RegisterDisplay" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer/CurrentInstructionContainer" instance=ExtResource("2_ghmuq")]
 layout_mode = 2
+text = "-----------"
 
 [node name="MipsLabel" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer/CurrentInstructionContainer"]
 layout_mode = 2
@@ -492,15 +712,16 @@ horizontal_alignment = 2
 
 [node name="RegisterDisplay2" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer/CurrentInstructionContainer" instance=ExtResource("2_ghmuq")]
 layout_mode = 2
-text = "add $t0, $t1, $t2"
+text = "-----------"
 
 [node name="InstructionLabel" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer/CurrentInstructionContainer"]
 layout_mode = 2
 text = "Exec"
 horizontal_alignment = 2
 
-[node name="InstructionDisplay" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer/CurrentInstructionContainer" instance=ExtResource("3_vijdn")]
+[node name="RegisterDisplay3" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/CurrentInstructionBox/MarginContainer/CurrentInstructionContainer" instance=ExtResource("2_ghmuq")]
 layout_mode = 2
+text = "-----------"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox"]
 layout_mode = 2
@@ -512,13 +733,41 @@ text = "Output"
 [node name="PanelContainer" type="PanelContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/VBoxContainer"]
 layout_mode = 2
 
-[node name="Output" type="RichTextLabel" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/VBoxContainer/PanelContainer"]
-custom_minimum_size = Vector2(2.08165e-12, 200)
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/VBoxContainer/PanelContainer"]
 layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 4
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/VBoxContainer/PanelContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="Output" type="RichTextLabel" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(250, 300)
+layout_mode = 2
+focus_mode = 2
+bbcode_enabled = true
+selection_enabled = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "std::in: "
+
+[node name="LineEdit" type="LineEdit" parent="CanvasLayer/GUI/CenterContainer/HBoxContainer/OpOutBox/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(200, 2.08165e-12)
+layout_mode = 2
+caret_blink = true
 
 [connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputPanel/MarginContainer/FormatChoiceBox/MIPSChoiceButton" to="CanvasLayer/GUI" method="OnAsmInputButtonPressed"]
 [connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputPanel/MarginContainer/FormatChoiceBox/HexChoiceButton" to="CanvasLayer/GUI" method="OnHexInputButtonPressed"]
 [connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputPanel/MarginContainer/FormatChoiceBox/BinaryChoiceButton" to="CanvasLayer/GUI" method="OnBinInputButtonPressed"]
+[connection signal="lines_edited_from" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/InputEditor" to="CanvasLayer/GUI" method="OnInputEditted"]
+[connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons/HBoxContainer/StepButton" to="." method="OnStepButtonPressed"]
+[connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons/HBoxContainer/RunButton" to="." method="OnRunButtonPressed"]
 [connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons/CompileButton" to="." method="OnCompileButtonPressed"]
 [connection signal="pressed" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/Input/PlayerButtons/CodeButton" to="CanvasLayer/GUI" method="OnCodeButtonPressed"]
 [connection signal="item_selected" from="CanvasLayer/GUI/CenterContainer/HBoxContainer/Registers/MarginContainer/VBoxContainer/PanelContainer/MarginContainer/OptionButton" to="CanvasLayer/GUI" method="OnRegisterDisplayChosen"]

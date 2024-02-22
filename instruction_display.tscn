@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://cs3uy8810c7m8"]
+[gd_scene format=3 uid="uid://f46o53jfbaiy"]
 
 [node name="InstructionDisplay" type="PanelContainer"]
 offset_right = 40.0

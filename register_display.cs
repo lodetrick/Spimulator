@@ -33,7 +33,7 @@ public partial class register_display : PanelContainer
 				text = "0b" + data.ToString("B32");
 				break;
 			case DataRepresentation.Decimal:
-				text = "0d" + data.ToString("D");
+				text = ((int)data).ToString("D");
 				break;
 			default:
 				break;//throw error
