@@ -329,7 +329,7 @@ public static class Compiler {
                 }
                 else { // i-type (branch)
                     uint local_position  = (uint)(label.Item2 - line - 4);
-                    instruction |= (uint)(0x0000FFFF & local_position);
+                    instruction |= (uint)(0x0000FFFF & (local_position >> 2));
                 }
             }
         }
