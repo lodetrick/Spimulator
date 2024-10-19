@@ -295,6 +295,9 @@ public partial class Main : Node2D //this is the spimulator
 			case 10: // quit
 				ProgramActive = false;
 				break;
+			case 11: // print char
+				gui.AddToOutput(((char)Memory[Registers[4]]).ToString());
+				break;
 		}
 	}
 
